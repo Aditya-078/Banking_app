@@ -2,6 +2,7 @@
 import { type ClassValue, clsx } from "clsx";
 import qs from "query-string";
 import { twMerge } from "tailwind-merge";
+import { z } from "zod";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -193,3 +194,20 @@ export const getTransactionStatus = (date: Date) => {
 
   return date > twoDaysAgo ? "Processing" : "Success";
 };
+
+export const authFormSchema = (type: string) =>
+  z.object({
+    // sign-up fields
+    firstName: type === 'sign-in' ? z.string().optional() : z.string().min(3, { message: "First name should be at least 3 characters" }),
+    lastName: type === 'sign-in' ? z.string().optional() : z.string().min(3, { message: "Last name should be at least 3 characters" }),
+    address1: type === 'sign-in' ? z.string().optional() : z.string().max(50, { message: "Address should be less than 50 characters" }),
+    city: type === 'sign-in' ? z.string().optional() : z.string().max(50, { message: "City should be less than 50 characters" }),
+    state: type === 'sign-in' ? z.string().optional() : z.string().min(2, { message: "State should be at least 2 characters" }).max(20, { message: "State should be less than 20 characters" }),
+    postalCode: type === 'sign-in' ? z.string().optional() : z.string().regex(/^\d{6}$/, { message: "Postal Code must be exactly 6 digits" }),
+    dob: type === 'sign-in' ? z.string().optional() : z.string().min(3, { message: "Date of birth is required" }),
+    aadhaar: type === 'sign-in' ? z.string().optional() : z.string().regex(/^\d{12}$/, { message: "Aadhaar must be exactly 12 digits" }),
+
+    // common fields
+    email: z.string().email({ message: "Invalid email format" }),
+    password: z.string().min(8, { message: "Password must be at least 8 characters long" }),
+  });
