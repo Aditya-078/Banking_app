@@ -25,6 +25,7 @@ import { authFormSchema } from '../../lib/utils';
 import SignUp from '@/app/(auth)/sign-up/page';
 import { useRouter } from 'next/navigation';
 import { getLoggedInUser, signIn, signUp } from '../../lib/actions/user.actions';
+import PlaidLink from './PlaidLink';
 
 
 
@@ -48,8 +49,8 @@ const AuthForm = ({type} : {type:string}) => {
     city: type === 'sign-up' ? "" : undefined,
     state: type === 'sign-up' ? "" : undefined,
     postalCode: type === 'sign-up' ? "" : undefined,
-    dob: type === 'sign-up' ? "" : undefined,
-    aadhaar: type === 'sign-up' ? "" : undefined,
+    dateOfBirth: type === 'sign-up' ? "" : undefined,
+    ssn: type === 'sign-up' ? "" : undefined,
     },
   })
  
@@ -58,9 +59,24 @@ const AuthForm = ({type} : {type:string}) => {
     setisLoading(true);
     try {
       //Sign up with app write and create plaid token
+     
       
       if(type=== 'sign-up'){
-        const newUser = await signUp(data);
+
+        const userData = {
+          firstName: data.firstName!,
+          lastName: data.lastName!,
+          address1: data.address1!,
+          city: data.city!,
+          ssn:data.ssn!,
+          state:data.state!,
+          postalCode:data.postalCode!,
+          dateOfBirth: data.dateOfBirth!,
+          email: data.email,
+          password: data.password,
+  
+        }
+        const newUser = await signUp(userData);
 
        setUser(newUser);
 
@@ -121,9 +137,11 @@ const AuthForm = ({type} : {type:string}) => {
             </h1>
           </div>
         </header>
-        {user ? (
+        {user ? ( 
             <div className='flex flex-col gap-4'>
-                {/*Plaidlink */}
+                <PlaidLink user={user}
+                  variant="primary"
+                />
             </div>
         ) : (
             <>
@@ -164,12 +182,12 @@ const AuthForm = ({type} : {type:string}) => {
         </div>
 
         <div className='flex gap-3'>
-        <CustomInput control={form.control} name='dob' 
+        <CustomInput control={form.control} name='dateOfBirth' 
          label='Date of Birth'
          placeholder='Example: DD-MM-YYYY'
         />
-        <CustomInput control={form.control} name='aadhaar' 
-         label='Aadhaar No.'
+        <CustomInput control={form.control} name='ssn' 
+         label='SSN'
          placeholder='Example: 1234 1234 1234'
         />
         </div>
@@ -214,7 +232,7 @@ const AuthForm = ({type} : {type:string}) => {
 
       </footer>
             </>
-        )}
+        )}  
     </section>
   )
 }
